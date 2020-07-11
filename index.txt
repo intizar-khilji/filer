@@ -1,9 +1,9 @@
-file transfer using python command line using socket version 0.2
+file transfer using python socket 'version 0.2'
 
 install "tqdm" module
 
 pip3 install tqdm
 
-1> change file location in server
-2> change file location in client
-3> change host address
+Check out the link below for 
+How to use
+https://youtu.be/By4An90W7Zg
