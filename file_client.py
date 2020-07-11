@@ -6,16 +6,33 @@ host = 'localhost'
 port = 9999
 # ---------------------------------
 
-import socket, os
+import socket, os, sys,time
 try:
     from tqdm import tqdm
 except:
     os.system('pip3 install tqdm')
     from tqdm import tqdm
 
+args = sys.argv
+if len(args)>1:
+    host = args[1]
+else:
+    print('args[1] - Host IP Address\nDefault IP Address - localhost\n\n')
+
 def make_connection(host,port):
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.connect((host, port))
+    i,n = 0,5
+    while i<n:
+        try:
+            s.connect((host, port))
+            break
+        except:
+            print(f'[-] Retrying({i+1})...')
+            time.sleep(0.5)
+            i+=1
+            if i == n:
+                print('[-] Not connected.')
+                sys.exit()
     print(s.recv(32).decode())
     return s
 
@@ -33,11 +50,18 @@ def recv_file(s,path=''):
             line = s.recv(buffer)
             f.write(line)
     filesize2 = os.path.getsize(file)
+    print('Received File Size :',filesize2,'Bytes')
     if filesize == filesize2:
         s.send(b'ack')
-        print('Transmission Successfully Completed.\n')
+        print('[+] Transmission Successfully Completed.\n')
+    else:
+        print('[-] The received file may be corrupted.')
     s.close()
 
 if __name__ == '__main__':
-    s = make_connection(host,port)
-    recv_file(s,'D:\\Projects\\s\\')
+    try:
+        s = make_connection(host,port)
+        recv_file(s)
+    except Exception as e:
+        s.close()
+        print('[-]',e)

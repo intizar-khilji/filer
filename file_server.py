@@ -5,24 +5,33 @@
 host = ''
 port = 9999
 buffer = 64
-file = 'file-name-or-path'
 # ---------------------------------
 
-import socket, os
+import socket, os, sys
 try:
     from tqdm import tqdm
 except:
     os.system('pip3 install tqdm')
     from tqdm import tqdm
 
+args = sys.argv
+if len(args) == 1:
+    print('args[1] - File Name\nargs[2] - Buffer Size')
+    sys.exit()
+elif len(args) == 2:
+    file = args[1]
+elif len(args) == 3:
+    file = args[1]
+    buffer = int(args[2])
+
 def make_connection(host,port):
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.bind((host,port))
     s.listen(1)
-    print('Waiting for connection...')
+    print('[+] Waiting for connection...')
     c,addr = s.accept()
     print('Connected with',addr[0], addr[1])
-    c.send(b'Connection established.')
+    c.send(b'[+] Connection established.')
     return c
 
 def send_file(c, file, buffer):
@@ -36,11 +45,18 @@ def send_file(c, file, buffer):
         for i in tqdm(range((filesize//buffer)+1)):
             line = f.read(buffer)
             c.send(line)
-    ack = c.recv(4).decode()
-    if ack == 'ack':
-        print('File Transfered.\n')
+    try:
+        ack = c.recv(4).decode()
+        if ack == 'ack':
+            print('[+] File Transfered.\n')
+    except Exception as e:
+        print('[-] Acknowledgement not received.\n'+e)
     c.close()
 
 if __name__ == '__main__':
-    c = make_connection(host,port)
-    send_file(c,file,buffer)
+    try:
+        c = make_connection(host,port)
+        send_file(c,file,buffer)
+    except Exception as e:
+        c.close()
+        print('[-]',e)
