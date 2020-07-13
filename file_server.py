@@ -9,6 +9,10 @@ buffer = 64
 
 import socket, os, sys
 
+with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as f:
+    f.connect(('8.8.8.8',53))
+    print('Host IP Address :',f.getsockname()[0])
+
 args = sys.argv
 if len(args) == 1:
     print('args[1] - File Name\nargs[2] - Buffer Size')
