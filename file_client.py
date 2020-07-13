@@ -4,20 +4,33 @@
 # ---------------------------------
 host = 'localhost'
 port = 9999
+path = ''
 # ---------------------------------
 
 import socket, os, sys,time
-try:
-    from tqdm import tqdm
-except:
-    os.system('pip3 install tqdm')
-    from tqdm import tqdm
 
 args = sys.argv
-if len(args)>1:
+if len(args)==2:
     host = args[1]
+elif len(args)==3:
+    host = args[1]
+    path = args[2]
 else:
-    print('args[1] - Host IP Address\nDefault IP Address - localhost\n\n')
+    print('args[1] - Host IP Address\nargs[2] - File Path\nDefault IP Address - localhost\n\n')
+
+def progress(count, total):
+    status = ''
+    bar_len = 60
+    filled_len = int(round(bar_len * count / float(total)))
+
+    percents = round(100.0 * count / float(total), 1)
+    bar = '#' * filled_len + '.' * (bar_len - filled_len)
+    if percents < 100:
+        status = 'Transfering...'
+    else:
+        status = 'Done.           '
+    sys.stdout.write('[%s] %s%s | %s\r' % (bar, percents, '%', status))
+    sys.stdout.flush()
 
 def make_connection(host,port):
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -46,9 +59,11 @@ def recv_file(s,path=''):
     re = b''
     print('Name :',os.path.basename(file),'\nSize :',filesize,'Bytes')
     with open(file, 'wb') as f:
-        for i in tqdm(range((filesize//buffer)+1)):
+        for i in range((filesize//buffer)+1):
+            progress(i,(filesize//buffer)+1)
             line = s.recv(buffer)
             f.write(line)
+        print()
     filesize2 = os.path.getsize(file)
     print('Received File Size :',filesize2,'Bytes')
     if filesize == filesize2:
@@ -61,7 +76,7 @@ def recv_file(s,path=''):
 if __name__ == '__main__':
     try:
         s = make_connection(host,port)
-        recv_file(s)
+        recv_file(s,path)
     except Exception as e:
         s.close()
         print('[-]',e)

@@ -8,11 +8,6 @@ buffer = 64
 # ---------------------------------
 
 import socket, os, sys
-try:
-    from tqdm import tqdm
-except:
-    os.system('pip3 install tqdm')
-    from tqdm import tqdm
 
 args = sys.argv
 if len(args) == 1:
@@ -23,6 +18,20 @@ elif len(args) == 2:
 elif len(args) == 3:
     file = args[1]
     buffer = int(args[2])
+
+def progress(count, total):
+    status = ''
+    bar_len = 60
+    filled_len = int(round(bar_len * count / float(total)))
+
+    percents = round(100.0 * count / float(total), 1)
+    bar = '#' * filled_len + '.' * (bar_len - filled_len)
+    if percents < 100:
+        status = 'Transfering...'
+    else:
+        status = 'Done.           '
+    sys.stdout.write('[%s] %s%s | %s\r' % (bar, percents, '%', status))
+    sys.stdout.flush()
 
 def make_connection(host,port):
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -42,9 +51,11 @@ def send_file(c, file, buffer):
     c.send(info.encode())
     print('Name :',basename,'\nSize :',filesize,'bytes')
     with open(file, 'rb') as f:
-        for i in tqdm(range((filesize//buffer)+1)):
+        for i in range((filesize//buffer)+1):
+            progress(i,(filesize//buffer)+1)
             line = f.read(buffer)
             c.send(line)
+        print()
     try:
         ack = c.recv(4).decode()
         if ack == 'ack':
