@@ -1,4 +1,4 @@
-file transfer using python socket 'version 0.2'
+file transfer using python socket 'version 1.0'
 
 Check out the link below for 
 How to use
