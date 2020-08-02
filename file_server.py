@@ -1,7 +1,7 @@
 # A file transfer program called [FILER 0.2.1]
 # (c) Intzaar
 # File Transfer using python3
-# file_server 0.2
+# file_server 0.2.1
 # ----------Variables--------------
 host = ''
 port = 9999
