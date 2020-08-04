@@ -24,7 +24,9 @@ except:
 
 # Manage command line arguments
 args = sys.argv
-if len(args) == 3:
+if len(args) == 2:
+    files = [args[1]]
+elif len(args) == 3:
     files = [args[1]]
     buffer = int(args[2])
 elif '-f' in args or '-b' in args:

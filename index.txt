@@ -1,5 +1,1 @@
 file transfer using python socket 'version 1.0'
-
-Check out the link below for 
-How to use
-https://youtu.be/By4An90W7Zg
