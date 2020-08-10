@@ -26,13 +26,16 @@ except:
 args = sys.argv
 if len(args) == 2:
     files = [args[1]]
-elif len(args) == 3:
+elif len(args) == 3 and '-f' not in args:
     files = [args[1]]
     buffer = int(args[2])
 elif '-f' in args or '-b' in args:
-    if '-f' in args: 
-        files = [x for x in args if os.path.isfile(x)]
-        files = files[1:]
+    if '-f' in args:
+        if '*.*' in args:
+            files = [x for x in os.listdir() if os.path.isfile(x)]
+        else:
+            files = [x for x in args if os.path.isfile(x)]
+            files = files[1:]
     if '-b' in args:
         buffer = int(args[args.index('-b')+1])
 else:
