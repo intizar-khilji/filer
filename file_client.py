@@ -8,20 +8,25 @@ host = 'localhost'
 port = 9999
 path = ''
 seperator_len = 30
+# Python imports
+import socket, os, sys,time, argparse
+# Manage command line arguments
+parser = argparse.ArgumentParser()
+parser.add_argument('-u','--host', help='Host IP Address')
+parser.add_argument('-p', '--port', help='Port Number', type=int)
+parser.add_argument('-l', '--location', help='Receiver Directory')
+args = parser.parse_args()
+if args.host:
+    host = args.host
+if args.port:
+    port = args.port
+if args.location:
+    path = args.location
+if args.host is None:
+    print('Default Host IP Address : 127.0.0.1\n')
 # ---------------------------------
 
 print('-'*seperator_len+'\n\tFILER\n'+'-'*seperator_len)
-# Python imports
-import socket, os, sys,time
-# Manage command line arguments
-args = sys.argv
-if len(args)==2:
-    host = args[1]
-elif len(args)==3:
-    host = args[1]
-    path = args[2]
-else:
-    print('-'*seperator_len+'\nargs[1] - Host IP Address\nargs[2] - File Path\nDefault IP Address - localhost\n'+'-'*seperator_len)
 # Progress Bar
 def progress(count, total):
     status = ''

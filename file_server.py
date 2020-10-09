@@ -9,11 +9,27 @@ port = 9999
 buffer = 64
 seperator_len = 30
 files = []
+timeout = 20
+# Python imports
+import socket, os, sys, argparse
+# Manage command line arguments
+parser = argparse.ArgumentParser()
+parser.add_argument('filename', nargs='+', help='Specify file (one or more than one.)')
+parser.add_argument('-b', '--buffer', help='Enter custom buffer size', type=int)
+parser.add_argument('-p', '--port', help='Port Number', type=int)
+parser.add_argument('--timeout', help='Set timeout in sec', type=int)
+args = parser.parse_args()
+if args.filename:
+    files = args.filename
+if args.buffer:
+    buffer = args.buffer
+if args.port:
+    port = args.port
+if args.timeout:
+    timeout=args.timeout
 # ---------------------------------
 
 print('-'*seperator_len+'\n\tFILER\n'+'-'*seperator_len)
-# Python imports
-import socket, os, sys
 # Finding IP address
 try:
     with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as f:
@@ -21,31 +37,6 @@ try:
         print('-'*seperator_len+'\nHost IP Address :',f.getsockname()[0]+'\n'+'-'*seperator_len+'\n')
 except:
     print('-'*seperator_len+'\nYou are not connected yet\nLocalhost IP - 127.0.0.1')
-
-# Manage command line arguments
-args = sys.argv
-if len(args) == 2:
-    files = [args[1]]
-elif len(args) == 3 and '-f' not in args:
-    files = [args[1]]
-    buffer = int(args[2])
-elif '-f' in args or '-b' in args:
-    if '-f' in args:
-        if '*.*' in args:
-            files = [x for x in os.listdir() if os.path.isfile(x)]
-        else:
-            files = [x for x in args if os.path.isfile(x)]
-            files = files[1:]
-    if '-b' in args:
-        buffer = int(args[args.index('-b')+1])
-else:
-    print('-'*seperator_len)
-    print('For single file')
-    print('args[1] - File Name\nargs[2] - Buffer Size')
-    print('For multiple files')
-    print('-f - Filenames\n-b - Buffer Size')
-    print('-'*seperator_len)
-    sys.exit()
 
 # Progress Bar
 def progress(count, total):
@@ -64,7 +55,7 @@ def progress(count, total):
 # Make connection
 def make_connection(host,port):
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.settimeout(20)
+    s.settimeout(timeout)
     s.bind((host,port))
     s.listen(1)
     print('[+] Waiting for connection...')
@@ -100,15 +91,15 @@ def main():
             number_of_files = str(len(files))
             print('[+] Number of files :', number_of_files)
             c.send(number_of_files.encode())
-            for fle in files:
-                send_file(c,fle,buffer)
+            for file in files:
+                send_file(c,file,buffer)
+            c.close()
         except Exception as e:
             try:
                 c.close()
             except:
                 print('[-] Not Connected.')
             print('[-]',e)
-        c.close()
 
 if __name__ == '__main__':
     main()
