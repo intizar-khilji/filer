@@ -1,26 +1,32 @@
-# A file transfer program called [FILER 0.2.1]
+# A file transfer program called [FILER 1.0]
 # (c) Intzaar
 # File Transfer using python3
-# file_client 0.2.1
+# file_client 1.0
+# Date - 02-08-2020
 # -----------Variables-------------
 host = 'localhost'
 port = 9999
 path = ''
 seperator_len = 30
+# Python imports
+import socket, os, sys,time, argparse
+# Manage command line arguments
+parser = argparse.ArgumentParser()
+parser.add_argument('-u','--host', help='Host IP Address')
+parser.add_argument('-p', '--port', help='Port Number', type=int)
+parser.add_argument('-l', '--location', help='Receiver Directory')
+args = parser.parse_args()
+if args.host:
+    host = args.host
+if args.port:
+    port = args.port
+if args.location:
+    path = args.location
+if args.host is None:
+    print('Default Host IP Address : 127.0.0.1\n')
 # ---------------------------------
 
 print('-'*seperator_len+'\n\tFILER\n'+'-'*seperator_len)
-# Python imports
-import socket, os, sys,time
-# Manage command line arguments
-args = sys.argv
-if len(args)==2:
-    host = args[1]
-elif len(args)==3:
-    host = args[1]
-    path = args[2]
-else:
-    print('-'*seperator_len+'\nargs[1] - Host IP Address\nargs[2] - File Path\nDefault IP Address - localhost\n'+'-'*seperator_len)
 # Progress Bar
 def progress(count, total):
     status = ''
@@ -78,12 +84,18 @@ def recv_file(s,path=''):
     else:
         print('[-] The received file may be corrupted.')
         print('[-] Received File Size :',filesize2,'Bytes')
-    s.close()
+    
+def main():
+        try:
+            s = make_connection(host,port)
+            number_of_files = int(s.recv(16).decode().strip())
+            print('[+] Number of files :', number_of_files)
+            for _ in range(number_of_files):
+                recv_file(s,path)
+        except Exception as e:
+            s.close()
+            print('[-]',e)
+        s.close()
 
 if __name__ == '__main__':
-    try:
-        s = make_connection(host,port)
-        recv_file(s,path)
-    except Exception as e:
-        s.close()
-        print('[-]',e)
+    main()

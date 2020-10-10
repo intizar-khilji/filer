@@ -1,17 +1,49 @@
-# A file transfer program called [FILER 0.2.1]
+# A file transfer program called [FILER 1.0]
 # (c) Intzaar
 # File Transfer using python3
-# file_server 0.2.1
+# file_server 1.0
+# Date - 02-08-2020
 # ----------Variables--------------
 host = ''
 port = 9999
 buffer = 64
 seperator_len = 30
+files = []
+timeout = 20
+# Python imports
+import socket, os, sys, argparse
+
+# Get Specific Extension file
+def listfile(file, ext):
+    ext_len = len(ext)
+    if '.'+ext == file[-ext_len-1:]:
+        return True
+    return False
+# Manage command line arguments
+parser = argparse.ArgumentParser()
+parser.add_argument('filename', nargs='+', help='Specify file (one or more than one.)')
+parser.add_argument('-b', '--buffer', help='Enter custom buffer size', type=int)
+parser.add_argument('-p', '--port', help='Port Number', type=int)
+parser.add_argument('--timeout', help='Set timeout in sec', type=int)
+args = parser.parse_args()
+if args.filename:
+    if '*' in args.filename[0]:
+        if '*.*' == args.filename[0]:
+            files = [i for i in os.listdir() if os.path.isfile(i)]
+        else:
+            ext = args.filename[0][args.filename[0].rindex('.')+1:]
+            files = [i for i in os.listdir() if listfile(i, ext)]
+    else:
+        files = args.filename
+if args.buffer:
+    buffer = args.buffer
+if args.port:
+    port = args.port
+if args.timeout:
+    timeout=args.timeout
 # ---------------------------------
 
 print('-'*seperator_len+'\n\tFILER\n'+'-'*seperator_len)
-# Python imports
-import socket, os, sys
 # Finding IP address
 try:
     with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as f:
@@ -20,18 +52,7 @@ try:
 except:
     print('-'*seperator_len+'\nYou are not connected yet\nLocalhost IP - 127.0.0.1')
 
-# Manage command line arguments
-args = sys.argv
-if len(args) == 1:
-    print('-'*seperator_len+'\nargs[1] - File Name\nargs[2] - Buffer Size\n'+'-'*seperator_len)
-    sys.exit()
-elif len(args) == 2:
-    file = args[1]
-elif len(args) == 3:
-    file = args[1]
-    buffer = int(args[2])
-
-# Projgress Bar
+# Progress Bar
 def progress(count, total):
     status = ''
     bar_len = 50
@@ -48,7 +69,7 @@ def progress(count, total):
 # Make connection
 def make_connection(host,port):
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.settimeout(20)
+    s.settimeout(timeout)
     s.bind((host,port))
     s.listen(1)
     print('[+] Waiting for connection...')
@@ -77,15 +98,22 @@ def send_file(c, file, buffer):
             print('[+] File Transfered.\n')
     except Exception as e:
         print('[-] Acknowledgement not received.\n'+e)
-    c.close()
+
+def main():
+        try:
+            c = make_connection(host,port)
+            number_of_files = str(len(files))
+            print('[+] Number of files :', number_of_files)
+            c.send(number_of_files.encode())
+            for file in files:
+                send_file(c,file,buffer)
+            c.close()
+        except Exception as e:
+            try:
+                c.close()
+            except:
+                print('[-] Not Connected.')
+            print('[-]',e)
 
 if __name__ == '__main__':
-    try:
-        c = make_connection(host,port)
-        send_file(c,file,buffer)
-    except Exception as e:
-        try:
-            c.close()
-        except:
-            print('[-] Not Connected.')
-        print('[-]',e)
+    main()
