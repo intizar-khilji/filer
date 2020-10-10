@@ -12,6 +12,13 @@ files = []
 timeout = 20
 # Python imports
 import socket, os, sys, argparse
+
+# Get Specific Extension file
+def listfile(file, ext):
+    ext_len = len(ext)
+    if '.'+ext == file[-ext_len-1:]:
+        return True
+    return False
 # Manage command line arguments
 parser = argparse.ArgumentParser()
 parser.add_argument('filename', nargs='+', help='Specify file (one or more than one.)')
@@ -20,7 +27,14 @@ parser.add_argument('-p', '--port', help='Port Number', type=int)
 parser.add_argument('--timeout', help='Set timeout in sec', type=int)
 args = parser.parse_args()
 if args.filename:
-    files = args.filename
+    if '*' in args.filename[0]:
+        if '*.*' == args.filename[0]:
+            files = [i for i in os.listdir() if os.path.isfile(i)]
+        else:
+            ext = args.filename[0][args.filename[0].rindex('.')+1:]
+            files = [i for i in os.listdir() if listfile(i, ext)]
+    else:
+        files = args.filename
 if args.buffer:
     buffer = args.buffer
 if args.port:
