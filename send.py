@@ -111,6 +111,7 @@ def main():
         try:
             c = make_connection(host,port)
             number_of_files = str(len(files))
+            number_of_files = ' '*(4-len(number_of_files))+number_of_files
             print('[+] Number of files :', number_of_files)
             c.send(number_of_files.encode())
             for file in files:

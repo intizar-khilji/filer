@@ -94,7 +94,7 @@ def recv_file(s,path=''):
 def main():
         try:
             s = make_connection(host,port)
-            number_of_files = int(s.recv(16).decode().strip())
+            number_of_files = int(s.recv(4).decode().strip())
             print('[+] Number of files :', number_of_files)
             for _ in range(number_of_files):
                 recv_file(s,path)
