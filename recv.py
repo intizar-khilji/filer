@@ -8,6 +8,7 @@ host = 'localhost'
 port = 9999
 path = ''
 seperator_len = 30
+version = 1.0
 # Python imports
 import socket, os, sys,time, argparse
 # Manage command line arguments
@@ -15,15 +16,20 @@ parser = argparse.ArgumentParser()
 parser.add_argument('-u','--host', help='Host IP Address')
 parser.add_argument('-p', '--port', help='Port Number', type=int)
 parser.add_argument('-l', '--location', help='Receiver Directory')
+parser.add_argument('--version', help='Get current version', action='store_true')
 args = parser.parse_args()
 if args.host:
     host = args.host
+if args.host is None and not args.version:
+    parser.print_help()
+    sys.exit()
 if args.port:
     port = args.port
 if args.location:
     path = args.location
-if args.host is None:
-    print('Default Host IP Address : 127.0.0.1\n')
+if args.version:
+    print(version)
+    sys.exit()
 # ---------------------------------
 
 print('-'*seperator_len+'\n\tFILER\n'+'-'*seperator_len)

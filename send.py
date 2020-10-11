@@ -10,6 +10,7 @@ buffer = 64
 seperator_len = 30
 files = []
 timeout = 20
+version = 1.0
 # Python imports
 import socket, os, sys, argparse
 
@@ -21,10 +22,11 @@ def listfile(file, ext):
     return False
 # Manage command line arguments
 parser = argparse.ArgumentParser()
-parser.add_argument('filename', nargs='+', help='Specify file (one or more than one.)')
+parser.add_argument('-f','--filename', nargs='+', help='Specify file (one or more than one.)')
 parser.add_argument('-b', '--buffer', help='Enter custom buffer size', type=int)
 parser.add_argument('-p', '--port', help='Port Number', type=int)
 parser.add_argument('--timeout', help='Set timeout in sec', type=int)
+parser.add_argument('--version', help='Get current version', action='store_true')
 args = parser.parse_args()
 if args.filename:
     if '*' in args.filename[0]:
@@ -35,12 +37,18 @@ if args.filename:
             files = [i for i in os.listdir() if listfile(i, ext)]
     else:
         files = args.filename
+if args.filename is None and not args.version:
+    parser.print_help()
+    sys.exit()
 if args.buffer:
     buffer = args.buffer
 if args.port:
     port = args.port
 if args.timeout:
     timeout=args.timeout
+if args.version:
+    print(version)
+    sys.exit()
 # ---------------------------------
 
 print('-'*seperator_len+'\n\tFILER\n'+'-'*seperator_len)
