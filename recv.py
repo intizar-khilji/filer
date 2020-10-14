@@ -9,6 +9,7 @@ port = 9999
 path = ''
 seperator_len = 30
 version = 1.0
+encode_type = 'utf-8'
 # Python imports
 import socket, os, sys,time, argparse
 # Manage command line arguments
@@ -41,7 +42,7 @@ def progress(count, total):
     percents = round(100.0 * count / float(total), 1)
     bar = '#' * filled_len + '.' * (bar_len - filled_len)
     if percents < 100:
-        status = 'Transfering...'
+        status = 'Receiving...'
     else:
         status = 'Done.           '
     sys.stdout.write('[%s] %s%s | %s\r' % (bar, percents, '%', status))
@@ -68,7 +69,9 @@ def make_connection(host,port):
 # File receiver logic
 def recv_file(s,path=''):
     sep='<SEP>'
-    info = s.recv(1024).decode()
+    info_len = s.recv(4).decode().strip()
+    info_len = int(info_len)
+    info = s.recv(info_len).decode()
     info  = info.split(sep)
     file = path+info[0]
     buffer = int(info[1])

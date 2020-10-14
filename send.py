@@ -11,6 +11,7 @@ seperator_len = 30
 files = []
 timeout = 20
 version = 1.0
+encode_type = 'utf-8'
 # Python imports
 import socket, os, sys, argparse
 
@@ -68,7 +69,7 @@ def progress(count, total):
     percents = round(100.0 * count / float(total), 1)
     bar = '#' * filled_len + '.' * (bar_len - filled_len)
     if percents < 100:
-        status = 'Transfering...'
+        status = 'Sending...'
     else:
         status = 'Done.           '
     sys.stdout.write('[%s] %s%s | %s\r' % (bar, percents, '%', status))
@@ -92,6 +93,9 @@ def send_file(c, file, buffer):
     basename = os.path.basename(file)
     filesize = os.path.getsize(file)
     info = basename+sep+str(buffer)+sep+str(filesize)
+    info_len = str(len(info))
+    info_len = ' '*(4-len(info_len))+info_len
+    c.send(info_len.encode())
     c.send(info.encode())
     print('Name :',basename,'\nSize :',filesize,'bytes')
     with open(file, 'rb') as f:
@@ -101,7 +105,7 @@ def send_file(c, file, buffer):
             c.send(line)
         print()
     try:
-        ack = c.recv(4).decode()
+        ack = c.recv(3).decode()
         if ack == 'ack':
             print('[+] File Transfered.\n')
     except Exception as e:
