@@ -37,7 +37,7 @@ print('-'*seperator_len+'\n\tFILER\n'+'-'*seperator_len)
 # Progress Bar
 def progress(count, total):
     status = ''
-    bar_len = 50
+    bar_len = os.get_terminal_size()[0]-30
     filled_len = int(round(bar_len * count / float(total)))
     percents = round(100.0 * count / float(total), 1)
     bar = '#' * filled_len + '.' * (bar_len - filled_len)

@@ -34,7 +34,8 @@ if args.filename:
         if '*.*' == args.filename[0]:
             files = [i for i in os.listdir() if os.path.isfile(i)]
         else:
-            ext = args.filename[0][args.filename[0].rindex('.')+1:]
+            # ext = args.filename[0][args.filename[0].rindex('.')+1:]
+            ext = os.path.splitext(args.filename[0])
             files = [i for i in os.listdir() if listfile(i, ext)]
     else:
         files = args.filename
@@ -64,7 +65,7 @@ except:
 # Progress Bar
 def progress(count, total):
     status = ''
-    bar_len = 50
+    bar_len = os.get_terminal_size()[0]-30
     filled_len = int(round(bar_len * count / float(total)))
     percents = round(100.0 * count / float(total), 1)
     bar = '#' * filled_len + '.' * (bar_len - filled_len)
